@@ -351,15 +351,23 @@ const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbw-LeKC-NKvxYXrOaWT
 // Token management
 let _gasToken = localStorage.getItem('sarabun_token') || '';
 
-// Core API call
+// Active year (safe access without DB reference)
+function _activeYear() {
+  return DB && DB.activeYear ? String(DB.activeYear) : String(new Date().getFullYear() + 543);
+}
+
+// Core API call — CSP-safe (no eval, explicit JSON.parse only on text)
 async function gasCall(action, body = {}) {
+  const payload = { action, token: _gasToken, year: _activeYear(), ...body };
   const res = await fetch(BACKEND_URL, {
-    method: 'POST',
+    method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action, token: _gasToken, year: String(DB.activeYear), ...body }),
+    body:    JSON.stringify(payload),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  // Use .json() directly — no eval involved
+  const data = await res.json();
+  return data;
 }
 
 // Override dbLoad — load from GAS instead of localStorage
