@@ -344,7 +344,7 @@ textarea.form-control{resize:vertical;min-height:80px}
 // แทนที่ localStorage ด้วย Google Sheets API
 // ทุกฟังก์ชันที่ใช้ DB.xxx จะถูก intercept
 // =============================================
-const BACKEND_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
+const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbys9Ig81rFUXRnth3ExPqvxTw53lEj4UXnQwnvTM8x-_IeWHlDpLS5KwtpgWn_sfusp/exec';
 // ↑ วาง Web App URL จาก Google Apps Script ที่นี่
 // ตัวอย่าง: 'https://script.google.com/macros/s/AKfycbxxx/exec'
 
@@ -2901,7 +2901,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   await dbLoad();
 
   // Check if BACKEND_URL is configured
-  if (BACKEND_URL === 'https://script.google.com/macros/s/AKfycbys9Ig81rFUXRnth3ExPqvxTw53lEj4UXnQwnvTM8x-_IeWHlDpLS5KwtpgWn_sfusp/exec') {
+  if (BACKEND_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
     document.getElementById('loading-screen').classList.add('hide');
     setTimeout(() => document.getElementById('loading-screen')?.remove(), 500);
     document.getElementById('app').innerHTML = `
