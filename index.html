@@ -344,7 +344,7 @@ textarea.form-control{resize:vertical;min-height:80px}
 // แทนที่ localStorage ด้วย Google Sheets API
 // ทุกฟังก์ชันที่ใช้ DB.xxx จะถูก intercept
 // =============================================
-const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbw-LeKC-NKvxYXrOaWT_0T2MR02joycmbaJ2ntebJIwBOyE1RbSfHcIIe5oUek_WbkR/exec';
+const BACKEND_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
 // ↑ วาง Web App URL จาก Google Apps Script ที่นี่
 // ตัวอย่าง: 'https://script.google.com/macros/s/AKfycbxxx/exec'
 
@@ -356,18 +356,20 @@ function _activeYear() {
   return DB && DB.activeYear ? String(DB.activeYear) : String(new Date().getFullYear() + 543);
 }
 
-// Core API call — CSP-safe (no eval, explicit JSON.parse only on text)
+// Core API call — ใช้ GET + URLSearchParams แทน POST เพื่อหลีก CORS preflight
 async function gasCall(action, body = {}) {
-  const payload = { action, token: _gasToken, year: _activeYear(), ...body };
-  const res = await fetch(BACKEND_URL, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(payload),
+  const params = new URLSearchParams({
+    action,
+    token:  _gasToken,
+    year:   _activeYear(),
+    data:   JSON.stringify(body),
   });
+  const url = `${BACKEND_URL}?${params.toString()}`;
+  const res  = await fetch(url, { method: 'GET', redirect: 'follow' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  // Use .json() directly — no eval involved
-  const data = await res.json();
-  return data;
+  const text = await res.text();
+  try { return JSON.parse(text); }
+  catch (e) { throw new Error('GAS response parse error: ' + text.slice(0, 100)); }
 }
 
 // Override dbLoad — load from GAS instead of localStorage
@@ -2899,7 +2901,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   await dbLoad();
 
   // Check if BACKEND_URL is configured
-  if (BACKEND_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+  if (BACKEND_URL === 'https://script.google.com/macros/s/AKfycbys9Ig81rFUXRnth3ExPqvxTw53lEj4UXnQwnvTM8x-_IeWHlDpLS5KwtpgWn_sfusp/exec') {
     document.getElementById('loading-screen').classList.add('hide');
     setTimeout(() => document.getElementById('loading-screen')?.remove(), 500);
     document.getElementById('app').innerHTML = `
